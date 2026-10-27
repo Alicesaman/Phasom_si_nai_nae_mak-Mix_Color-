@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ผสมสีนายเเน่มาก</title>
+<meta name="description" content="ผสมสีนายเเน่มาก เกมแข่งผสมแสงสี RGB สำหรับผู้เล่น 2 คน บน Arduino UNO R4 WiFi">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="stripe" aria-hidden="true"></div>
+    <p class="eyebrow">Physical Computing Project · Arduino UNO R4 WiFi</p>
+    <h1 class="title"><span class="r">ผสม</span><span class="g">สี</span><span class="b">นาย</span><span>เเน่มาก</span></h1>
+    <p class="tag">เกมแข่งผสมแสงสี RGB สำหรับผู้เล่น 2 คน ดูสีโจทย์ที่ไฟกลางบอร์ด แล้วกดปุ่มผสมให้ถูกก่อนอีกฝ่าย</p>
+
+    <div class="board" aria-label="ตัวอย่างการทำงานของบอร์ดเกม">
+      <div class="board-row">
+        <div class="side">
+          <h3>PLAYER 1</h3>
+          <div class="scores" id="s1"><i class="dot"></i><i class="dot"></i><i class="dot"></i></div>
+          <div class="led" id="led1"></div>
+          <div class="btns" id="b1"><i class="cap R">R</i><i class="cap G">G</i><i class="cap B">B</i></div>
+        </div>
+        <div class="center">
+          <span class="eyebrow">TARGET</span>
+          <div class="led big" id="ledT"></div>
+        </div>
+        <div class="side">
+          <h3>PLAYER 2</h3>
+          <div class="scores" id="s2"><i class="dot"></i><i class="dot"></i><i class="dot"></i></div>
+          <div class="led" id="led2"></div>
+          <div class="btns" id="b2"><i class="cap R">R</i><i class="cap G">G</i><i class="cap B">B</i></div>
+        </div>
+      </div>
+      <div class="lcd" id="lcd" aria-live="off">COLOR MIX GAME
+Press All 6 Btns</div>
+    </div>
+  </header>
+
+  <section id="abstract">
+    <div class="sec-head"><span class="eyebrow">Abstract</span><h2>บทคัดย่อ</h2></div>
+    <p class="prose">ตัวเกมจำลองระบบแข่งขันความเร็วสำหรับผู้เล่น 2 คน โดยระบบจะสุ่มแสดงสีเป้าหมายขึ้นที่ไฟ LED กลางบอร์ด ผู้เล่นทั้งสองฝ่ายต้องประมวลผล จำแนกสูตรการผสมแสงสี และใช้ปุ่มกดผสมสีของตนเองให้ถูกต้องและรวดเร็วที่สุด โดยมีระบบนับคะแนนผ่านไฟ LED แสดงผล และจอ LCD แจ้งเตือนสถานะการแข่งขันแบบ Real-time</p>
+  </section>
+
+  <section id="hardware">
+    <div class="sec-head"><span class="eyebrow">Hardware &amp; Modules</span><h2>อุปกรณ์ฮาร์ดแวร์และโมดูล</h2></div>
+    <div class="grid">
+      <div class="hw">
+        <div class="ico" aria-hidden="true"><svg width="64" height="40" viewBox="0 0 64 40"><rect x="1" y="1" width="62" height="38" rx="4" fill="#1d6e7a" stroke="#3ef1ff" stroke-width="1.5"/><rect x="22" y="12" width="20" height="16" rx="2" fill="#0c0d11"/><g fill="#ebecf1"><rect x="6" y="4" width="2" height="4"/><rect x="11" y="4" width="2" height="4"/><rect x="16" y="4" width="2" height="4"/><rect x="46" y="32" width="2" height="4"/><rect x="51" y="32" width="2" height="4"/><rect x="56" y="32" width="2" height="4"/></g></svg></div>
+        <span class="qty">MICROCONTROLLER × 1</span>
+        <h3>Arduino UNO R4 WiFi</h3>
+        <p>บอร์ดหลักที่ควบคุมการสุ่มโจทย์ อ่านปุ่ม ตรวจคำตอบ และสั่งงานไฟกับจอทั้งหมด</p>
+      </div>
+      <div class="hw">
+        <div class="ico" aria-hidden="true"><i class="cap R down" style="width:30px;height:30px">R</i><i class="cap G down" style="width:30px;height:30px">G</i><i class="cap B down" style="width:30px;height:30px">B</i></div>
+        <span class="qty">INPUT × 6</span>
+        <h3>Push Button (Tactile / Arcade)</h3>
+        <p>ปุ่ม R, G, B ฝั่งละ 3 ปุ่ม สำหรับ Player 1 และ Player 2 รวม 6 ปุ่ม</p>
+      </div>
+      <div class="hw">
+        <div class="ico" aria-hidden="true"><div class="lcd" style="font-size:10px;padding:4px 8px;border-width:3px;width:auto;justify-self:start">P1:0 vs P2:0</div></div>
+        <span class="qty">DISPLAY × 1</span>
+        <h3>LCD 16x2 + I2C</h3>
+        <p>แสดงสถานะเริ่มเกม นับถอยหลัง และประกาศผู้ชนะ ต่อผ่าน I2C ใช้สายแค่ SDA กับ SCL</p>
+      </div>
+      <div class="hw">
+        <div class="ico" aria-hidden="true"><i class="led" style="width:28px;height:28px;background:var(--m);box-shadow:0 0 12px var(--m)"></i><i class="led" style="width:28px;height:28px;background:var(--c);box-shadow:0 0 12px var(--c)"></i><i class="led" style="width:28px;height:28px;background:var(--y);box-shadow:0 0 12px var(--y)"></i></div>
+        <span class="qty">VISUAL OUTPUT × 3</span>
+        <h3>RGB LED 7 สี</h3>
+        <p>ดวงกลางแสดงโจทย์ที่สุ่มได้ อีก 2 ดวงแสดงสีที่ผู้เล่นแต่ละฝั่งกำลังผสมอยู่</p>
+      </div>
+      <div class="hw">
+        <div class="ico" aria-hidden="true"><div class="scores"><i class="dot on"></i><i class="dot on"></i><i class="dot"></i></div></div>
+        <span class="qty">VISUAL OUTPUT × 6</span>
+        <h3>LED สีแดง</h3>
+        <p>ไฟแสดงแต้มสะสม ฝั่งละ 3 ดวง ใครติดครบ 3 ดวงก่อนเป็นผู้ชนะ</p>
+      </div>
+      <div class="hw">
+        <div class="ico" aria-hidden="true"><svg width="64" height="40" viewBox="0 0 64 40"><rect x="1" y="6" width="40" height="28" rx="3" fill="#1d3f9e" stroke="#4083ff" stroke-width="1.5"/><circle cx="21" cy="20" r="10" fill="#0c0d11" stroke="#5d6372"/><circle cx="21" cy="20" r="2.5" fill="#5d6372"/><g fill="none" stroke="#ffe146" stroke-width="2" stroke-linecap="round"><path d="M47 14 q4 6 0 12"/><path d="M53 9 q8 11 0 22"/></g></svg></div>
+        <span class="qty">AUDIO OUTPUT × 1</span>
+        <h3>Passive Buzzer Module</h3>
+        <p>ส่งเสียงประกอบเกม เช่น นับถอยหลัง ตอบถูก และฉลองผู้ชนะ สั่งความถี่เสียงได้ด้วยคำสั่ง tone()</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="colors">
+    <div class="sec-head"><span class="eyebrow">Additive Color Mixing</span><h2>สูตรผสมแสงสี 7 สี</h2>
+      <p class="prose">แสงผสมแบบบวก ต่างจากการผสมสีน้ำ กดสองปุ่มพร้อมกันได้สีทุติยภูมิ กดครบสามปุ่มได้แสงสีขาว</p></div>
+    <div class="mix">
+      <div class="chip"><span class="swatch" style="background:var(--r)"></span><b>Red</b><code>R</code></div>
+      <div class="chip"><span class="swatch" style="background:var(--g)"></span><b>Green</b><code>G</code></div>
+      <div class="chip"><span class="swatch" style="background:var(--b)"></span><b>Blue</b><code>B</code></div>
+      <div class="chip"><span class="swatch" style="background:var(--y)"></span><b>Yellow</b><code>R + G</code></div>
+      <div class="chip"><span class="swatch" style="background:var(--m)"></span><b>Magenta</b><code>R + B</code></div>
+      <div class="chip"><span class="swatch" style="background:var(--c)"></span><b>Cyan</b><code>G + B</code></div>
+      <div class="chip"><span class="swatch" style="background:var(--w)"></span><b>White</b><code>R + G + B</code></div>
+    </div>
+  </section>
+
+  <section id="flow">
+    <div class="sec-head"><span class="eyebrow">Game Flow State</span><h2>ลำดับการทำงานของเกม</h2></div>
+    <ol class="flow">
+      <li>
+        <span class="num">STATE 1</span>
+        <div class="txt"><h3>Ready</h3>
+          <ul><li>จอ LCD แสดงข้อความ Hold Button to Start หรือกดปุ่มเริ่ม</li>
+          <li>เมื่อกดเริ่ม LCD นับถอยหลัง Ready 3.. 2.. 1.. GO!</li></ul></div>
+        <figure class="shots"><figure><img src="images/state1-start.jpg" alt="ตู้เกมก่อนเริ่ม จอ LCD ขึ้น COLOR MIX GAME Press All 6 Btns" loading="lazy" width="892" height="900"><figcaption>หน้าจอเริ่มเกม</figcaption></figure></figure>
+      </li>
+      <li>
+        <span class="num">STATE 2</span>
+        <div class="txt"><h3>สุ่มโจทย์สี 2 รูปแบบ</h3>
+          <ul><li><b>Mix Color</b> บอร์ดสุ่ม 1 สีจาก 7 สี (R, G, B, Y, M, C, W) แล้วสั่งให้ LED กลางสว่างเป็นสีนั้น</li>
+          <li><b>Memory Time</b> บอร์ดสุ่ม 2–4 สีจาก 7 สี แสดงทีละสีตามลำดับ ให้ผู้เล่นกดตามให้ถูก</li></ul></div>
+        <figure class="shots two">
+          <figure><img src="images/state2-mix.jpg" alt="LED กลางสว่างสีเหลือง จอขึ้น MIX COLOR!" loading="lazy" width="849" height="900"><figcaption>Mix Color</figcaption></figure>
+          <figure><img src="images/state2-memory.jpg" alt="LED กลางสว่างสีเขียว จอขึ้น MEMORY TIME! Watch 3 colors" loading="lazy" width="890" height="900"><figcaption>Memory Time</figcaption></figure>
+        </figure>
+      </li>
+      <li>
+        <span class="num">STATE 3</span>
+        <div class="txt"><h3>ผู้เล่นผสมสี</h3>
+          <ul><li>ปุ่ม R/G/B สะท้อนไปที่ LED ของผู้เล่นทันที เห็นได้เลยว่ากำลังผสมสีอะไรอยู่</li>
+          <li>ตรวจคำตอบแบบกดค้างพร้อมกัน ผู้เล่นกดปุ่มตามสูตรสีค้างไว้ให้ตรงกับโจทย์ ระบบเช็กว่าใครผสมถูกเป็นคนแรก</li></ul></div>
+      </li>
+      <li>
+        <span class="num">STATE 4</span>
+        <div class="txt"><h3>การให้แต้ม</h3>
+          <p>ผู้ที่ตอบถูกและไวกว่าได้แต้ม แบบชักเย่อ</p>
+          <ul><li>ถ้าฝ่ายตรงข้ามมีแต้ม: ปิดไฟ LED แดงของฝั่งตรงข้าม 1 ดวง</li>
+          <li>ถ้าฝ่ายตรงข้ามไม่มีแต้ม: เปิดไฟ LED แดงของฝั่งตัวเอง 1 ดวง</li></ul></div>
+        <figure class="shots"><figure><img src="images/state4-score.jpg" alt="ไฟแดงฝั่ง Player 1 ติด 1 ดวง จอขึ้น P1 SCORE! +1" loading="lazy" width="836" height="900"><figcaption>P1 ได้แต้ม ไฟแดงฝั่งซ้ายติด 1 ดวง</figcaption></figure></figure>
+      </li>
+      <li>
+        <span class="num">STATE 5</span>
+        <div class="txt"><h3>เช็คผู้ชนะ</h3>
+          <ul><li>ยังไม่มีใครติดไฟแดงครบ 3 ดวง: หน่วงเวลาเล็กน้อย <span class="loop">↺ กลับไป STATE 2</span></li>
+          <li>มีคนครบ 3 ดวง: LCD แสดง Player 1 Wins! หรือ Player 2 Wins! กระพริบไฟฉลอง แล้วรอรีเซ็ตเกมใหม่</li></ul></div>
+        <figure class="shots"><figure><img src="images/state5-win.jpg" alt="ไฟแดงฝั่ง Player 1 ติดครบ 3 ดวง จอขึ้น PLAYER 1 WIN!!" loading="lazy" width="900" height="899"><figcaption>Player 1 ชนะ ไฟแดงครบ 3 ดวง</figcaption></figure></figure>
+      </li>
+    </ol>
+  </section>
+
+  <section id="try">
+    <div class="sec-head"><span class="eyebrow">Try it</span><h2>ลองผสมสีดู</h2></div>
+    <div class="mixer">
+      <div class="col">
+        <span class="eyebrow">โจทย์</span>
+        <div class="led big on" id="mxT"></div>
+        <button class="ghost" id="mxNew" type="button">สุ่มโจทย์ใหม่</button>
+      </div>
+      <div class="col">
+        <span class="eyebrow">ปุ่มของคุณ</span>
+        <div class="mixbtns">
+          <button class="R" id="mxR" type="button" aria-pressed="false">R</button>
+          <button class="G" id="mxG" type="button" aria-pressed="false">G</button>
+          <button class="B" id="mxB" type="button" aria-pressed="false">B</button>
+        </div>
+        <p class="hint">กดเพื่อเปิด/ปิดแต่ละสี หรือใช้คีย์บอร์ด R, G, B</p>
+      </div>
+      <div class="col">
+        <span class="eyebrow">สีที่ผสมได้</span>
+        <div class="led big" id="mxP"></div>
+        <p id="verdict" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="links">
+    <div class="sec-head"><span class="eyebrow">Resources</span><h2>ลิงก์ของโปรเจกต์</h2></div>
+    <div class="links">
+      <a class="lk" href="https://youtu.be/85nE5H0SdDU" target="_blank" rel="noopener">▶ Video Presentation<span>ดูคลิปบน YouTube</span></a>
+      <a class="lk" href="https://github.com/Alicesaman/PIG-is-Good" target="_blank" rel="noopener">{ } Source Code<span>github.com/Alicesaman/PIG-is-Good</span></a>
+      <a class="lk" href="https://drive.google.com/file/d/1_eCTBjP1L4EzDx8QN3rVOYRgtkOd4OEO/view?usp=drive_link" target="_blank" rel="noopener">▤ Project Poster<span>เปิดไฟล์โปสเตอร์ A1 (PDF)</span></a>
+    </div>
+  </section>
+
+  <section id="team">
+    <div class="sec-head"><span class="eyebrow">About Us</span><h2>สมาชิกในกลุ่ม</h2></div>
+    <div class="team">
+      <div class="member"><img class="avatar" src="images/member1.jpg" alt="นายบุรินทร์ ศักดิ์ถาพร" loading="lazy" width="360" height="360" style="border-color:var(--r)"><b>นายบุรินทร์ ศักดิ์ถาพร</b><small>68070094</small></div>
+      <div class="member"><div class="avatar" style="background:var(--g)" aria-hidden="true">พ</div><b>นายพันธ์เขตกรณ์ ฤทธิ์ศิริ</b><small>68070122</small></div>
+      <div class="member"><img class="avatar" src="images/member3.jpg" alt="นายภาคิน วิไลเลิศ" loading="lazy" width="360" height="360" style="border-color:var(--b)"><b>นายภาคิน วิไลเลิศ</b><small>68070135</small></div>
+      <div class="member"><img class="avatar" src="images/member4.jpg" alt="นายรังสิมันต์ โซ๊ะมิเลาะ" loading="lazy" width="360" height="360" style="border-color:var(--y)"><b>นายรังสิมันต์ โซ๊ะมิเลาะ</b><small>68070155</small></div>
+      <div class="member"><img class="avatar" src="images/member5.jpg" alt="นายสิรวิชญ์กร ทองคำ" loading="lazy" width="360" height="360" style="border-color:var(--m)"><b>นายสิรวิชญ์กร ทองคำ</b><small>68070185</small></div>
+    </div>
+  </section>
+
+  <footer><span>ผสมสีนายเเน่มาก · Physical Computing</span><span>Arduino UNO R4 WiFi</span></footer>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
